@@ -1,5 +1,5 @@
 <?php
-include 'AStar2.php';
+include 'AStar.php';
 
 $max_x = 144;
 $max_y = 144;
