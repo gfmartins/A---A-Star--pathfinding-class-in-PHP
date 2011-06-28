@@ -150,8 +150,9 @@ class AStar
     {
   		$G = $this->getG($this->startX, $this->startY, $x, $y);
    			
-		$H = ( abs($x - $this->endX) + abs($y - $this->endY) ) * 10;
-		
+		//$H = ( sqrt(pow( $x - $this->endX, 2 ) + pow($y - $this->endY, 2) ) ) * 10;
+        $H = $this->getG($x, $y, $this->endX, $this->endY) * 0.9;
+        
 		return array('f' => $G + $H, 'g' => $G);
     }
     
@@ -166,33 +167,16 @@ class AStar
     	$cx = $startx;
     	$cy = $starty;
     	
-    	while ( $cx != $x || $cy != $y )
-    	{
-    		if ( $cx != $x && $cy != $y )
-    		{
-    			$cx = self::moveCloser($cx, $x);
-    			$cy = self::moveCloser($cy, $y);
-    			$g += 14;
-    		}
-    		else
-  			{
-    			$cx = self::moveCloser($cx, $x);
-    			$cy = self::moveCloser($cy, $y);
-    			$g += 10;
-  			}
-   		}
-   		
+        $xDelta = abs($startx - $x);
+        $yDelta = abs($starty - $y);
+        
+        $minDelta = min($xDelta, $yDelta);
+        
+        $g = $minDelta * 14;
+        $g += ( $xDelta - $minDelta ) * 10;
+        $g += ( $yDelta - $minDelta ) * 10;
+        
    		return $g;
-    }
-    
-    private static function moveCloser($start, $end)
-    {
-    	if ( $start < $end )
-    		return $start + 1;
-   		elseif ( $start > $end )
-    		return $start - 1;
-   		else 
-   			return $start;
     }
     
     private function addToOpenList($x, $y, $parent = false, $overwrite = false)
@@ -281,7 +265,7 @@ class AStar
     					if ( $this->getGThrough($this->currentX, $this->currentY, $x1, $y1) < $this->getGThrough($this->openList[$x1][$y1]['x'], $this->openList[$x1][$y1]['y'], $x1, $y1) )
     					{
     						//echo $this->getGThrough($this->currentX, $this->currentY, $x1, $y1). ' == ' .$this->getGThrough($this->openList[$x1][$y1]['x'], $this->openList[$x1][$y1]['y'], $x1, $y1);
-    						echo "Switching ". $x1 ."x". $y1 ." to point to ". $this->currentX ."x". $this->currentY ."<br />";
+    						//echo "Switching ". $x1 ."x". $y1 ." to point to ". $this->currentX ."x". $this->currentY ."<br />";
     						$this->addToOpenList($x1, $y1, array('x' => $this->currentX, 'y' => $this->currentY, 'f' => $this->getCost($x, $y)), true);
     					}
 					}

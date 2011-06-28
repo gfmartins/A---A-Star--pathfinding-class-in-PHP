@@ -13,9 +13,9 @@ $path = new AStar($map, 1, 1, 38, 38);
 $path->findShortestPath();
 
 echo '<table border="1"><tr>';
-for ($y=0; $y<=$max_y; $y++)
+for ($y=0; $y<$max_y; $y++)
 {
-    for ($x=0; $x<=$max_x; $x++)
+    for ($x=0; $x<$max_x; $x++)
     {
         echo '<td style="font-size: 10px;width: 20px;height:20px;';
 		
