@@ -7,6 +7,7 @@ class AStar
     
     private $openList = array(), $closedList = array();
     private $currentX, $currentY, $currentG;
+    private $lastCurrentX, $lastCurrentY, $lastCurrentG;
     
     public function __construct($map, $startX, $startY, $endX, $endY)
     {
@@ -88,6 +89,9 @@ class AStar
     
     private function moveTo($x, $y, $g = 0, $toClosed = true)
     {
+    	$this->lastCurrentX = $this->currentX;
+    	$this->lastCurrentY = $this->currentY;
+    	$this->lastCurrentG = $this->currentG;
     	$this->currentX = $x;
     	$this->currentY = $y;
     	$this->currentG = $g;
@@ -146,12 +150,18 @@ class AStar
 	* 
 	* F = total cost
 	*/
-    private function getCost($x, $y)
+    private function getCost($x, $y, $currentG = -1)
     {
-  		$G = $this->getG($this->startX, $this->startY, $x, $y);
-   			
+  		//$G = $this->getG($this->startX, $this->startY, $x, $y);
+        if ( $currentG == -1 )
+            $currentG = $this->currentG;
+            
+        //$G = $this->getG($this->startX, $this->startY, $x, $y);
+        $G = $currentG + $this->getG($this->currentX, $this->currentY, $x, $y);        
+
 		//$H = ( sqrt(pow( $x - $this->endX, 2 ) + pow($y - $this->endY, 2) ) ) * 10;
-        $H = $this->getG($x, $y, $this->endX, $this->endY) * 0.9;
+        $H = $this->getG($x, $y, $this->endX, $this->endY);        
+        //$H = ( abs( $x - $this->endX ) + abs( $y - $this->endY ) ) * 10;
         
 		return array('f' => $G + $H, 'g' => $G);
     }
@@ -175,7 +185,7 @@ class AStar
         $g = $minDelta * 14;
         $g += ( $xDelta - $minDelta ) * 10;
         $g += ( $yDelta - $minDelta ) * 10;
-        
+                        
    		return $g;
     }
     
@@ -258,15 +268,16 @@ class AStar
     			
     			if ( !$this->isClosed($x1, $y1) )
     			{
-    				$alreadyAdded = $this->addToOpenList($x1, $y1, array('x' => $x, 'y' => $y, 'f' => $this->getCost($x, $y)));
+    				$alreadyAdded = $this->addToOpenList($x1, $y1, array('x' => $x, 'y' => $y, 'f' => $this->getCost($x1, $y1)));
     				
     				if ( $alreadyAdded )
     				{
-    					if ( $this->getGThrough($this->currentX, $this->currentY, $x1, $y1) < $this->getGThrough($this->openList[$x1][$y1]['x'], $this->openList[$x1][$y1]['y'], $x1, $y1) )
+    					//if ( $this->getGThrough($this->currentX, $this->currentY, $x1, $y1) < $this->getGThrough($this->openList[$x1][$y1]['x'], $this->openList[$x1][$y1]['y'], $x1, $y1) )
+                        if ( $this->getG($this->lastCurrentX, $this->lastCurrentY, $x1, $y1) + $this->lastCurrentG > $this->getG($x, $y, $x1, $y1) + $this->currentG )                        
     					{
     						//echo $this->getGThrough($this->currentX, $this->currentY, $x1, $y1). ' == ' .$this->getGThrough($this->openList[$x1][$y1]['x'], $this->openList[$x1][$y1]['y'], $x1, $y1);
     						//echo "Switching ". $x1 ."x". $y1 ." to point to ". $this->currentX ."x". $this->currentY ."<br />";
-    						$this->addToOpenList($x1, $y1, array('x' => $this->currentX, 'y' => $this->currentY, 'f' => $this->getCost($x, $y)), true);
+    						$this->addToOpenList($x1, $y1, array('x' => $x, 'y' => $y, 'f' => $this->getCost($x, $y)), true);
     					}
 					}
     			}

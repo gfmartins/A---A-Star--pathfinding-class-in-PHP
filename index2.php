@@ -1,14 +1,15 @@
 <?php
 include 'AStar2.php';
 
-$max_x = 50;
-$max_y = 50;
+$max_x = 7;
+$max_y = 5;
 
-$map = AStar::getRandomMap($max_x, $max_y);
-$map[45][7] = 0;
-$map[1][2] = 0;
+$map = AStar::getEmptyMap($max_x, $max_y);
+$map[3][1] = 1;
+$map[3][2] = 1;
+$map[3][3] = 1;
 
-$path = new AStar($map, 1, 2, 45, 7);
+$path = new AStar($map, 1, 2, 5, 2);
 
 $path->findShortestPath();
 
