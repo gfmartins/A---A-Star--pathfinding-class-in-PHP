@@ -1,6 +1,11 @@
 <?php
 class AStar
 {
+	const HV_COST 					= 10;
+	const D_COST					= 14;
+	const ALLOW_DIAGONAL 			= true;
+	const ALLOW_DIAGONAL_CORNERING 	= false;
+	
     private $map = array();
 	private $startX, $startY, $endX, $endY;
     public $shortestPath = array();
@@ -38,25 +43,24 @@ class AStar
     	
     	for ( $x = 0; $x < $width; $x++ )
     		for ( $y = 0; $y < $height; $y++ )
-    			$map[$x][$y] = !(bool)rand(0, 8);
+    			$map[$x][$y] = !(bool)rand(0, 2);
  			
 		return $map;
     }
     
     private function distBetween($startx, $starty, $x, $y)
-    {
-    	$g = 0;
-    	$cx = $startx;
-    	$cy = $starty;
-    	
+    {    	
         $xDelta = abs($startx - $x);
         $yDelta = abs($starty - $y);
         
         $minDelta = min($xDelta, $yDelta);
         
-        $g = $minDelta * 14;
-        $g += ( $xDelta - $minDelta ) * 10;
-        $g += ( $yDelta - $minDelta ) * 10;
+        if ( self::ALLOW_DIAGONAL )
+        	$g = $minDelta * 14;
+        else
+        	$minDelta = 0;
+		$g += ( $xDelta - $minDelta ) * self::HV_COST;
+        $g += ( $yDelta - $minDelta ) * self::HV_COST;
                         
    		return $g;
     }
@@ -69,6 +73,9 @@ class AStar
             $node = $this->getLowest();
             $x = $node['x'];
             $y = $node['y'];
+            
+            if ( $x == -1 )
+                break;
             
             $this->moveToClosedList($x, $y);
             
@@ -88,7 +95,7 @@ class AStar
         			if ( $this->isClosed($x1, $y1) )
                         continue;
        					
-    				if ( $y1 != $y && $x1 != $x )
+    				if ( !self::ALLOW_DIAGONAL_CORNERING && $y1 != $y && $x1 != $x )
     				{
     					if ( $x1 > $x && $this->isObstacle($x + 1, $y) )
     						continue;
@@ -136,6 +143,7 @@ class AStar
         $lowestF = -1;
     	$lowestX = -1;
     	$lowestY = -1;
+        $dat = array();
     	
    		foreach ( $this->openList as $x => $ar )
    		{
