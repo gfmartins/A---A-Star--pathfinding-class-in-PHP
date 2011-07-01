@@ -56,7 +56,7 @@ class AStar
         $minDelta = min($xDelta, $yDelta);
         
         if ( self::ALLOW_DIAGONAL )
-        	$g = $minDelta * 14;
+        	$g = $minDelta * self::D_COST;
         else
         	$minDelta = 0;
 		$g += ( $xDelta - $minDelta ) * self::HV_COST;
